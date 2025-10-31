@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class User extends Authenticatable implements JWTSubject
 
 {
+    protected $primaryKey = 'user_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
    use HasFactory  , Notifiable;
    protected $fillable=['user_id','name','surname','grade','email','password'];
    protected $hidden=['password', 'remember_token',];
@@ -55,16 +59,17 @@ class User extends Authenticatable implements JWTSubject
 
    
    }
-   public static function newLogin(array $data): ?int   {
+   public static function newLogin(array $data): ?self   {
          $user=self::where('email', $data['email'])->first();
-         if($user && Hash::check(Hash::make($data['password']) , $user->password)){
-            return $user->id;
+         if(!($user && Hash::check($data['password'] , $user->password))){
+            return null;
          }
-         return null;
+         return $user;
       }
-
-
    public function generateAuthToken(): string{
+      if(!$this->user_id){
+         throw new \Exception('impossible de generer le token ; Utilisateur id not found');
+      }
       return JWTAuth::fromUser($this);
    }
 
@@ -76,7 +81,7 @@ public function generateAuthResponse():array{
       'token_type'=>'bearer',
       'expires'=>(int) auth()->factory()->getTTL()*60,
       'user'=>[
-         'id'=>$this->id,
+         'id'=>$this->user_id,
          'name'=>$this->name,
          'email'=>$this->email,
       ],
@@ -88,15 +93,33 @@ public function generateAuthResponse():array{
 
 public function revokeCurrentToken(): void
     {
-        auth()->logout();
+
     }
 
+public static function refreshAuthToken(): ?string
+    { 
+      try{
+       $newtoken=Auth()->refresh();
+       return [
+         "sucess"=>true,
+         'access_token'=>$newtoken,
+         'token_type'=>'bearer',
+         'expires'=>(int) auth()->factory()->getTTL()*60,   
+       ];
 
 
-public static function refreshAuthToken(): string
-    {
-        return auth()->refresh();
+
+    }catch(\Exception $e){
+      return reponse()->json(
+         [
+         'success' => false,
+         'message' => 'Erreur lors du rafraîchissement du token',
+         'error' => $e->getMessage(),
+         ]);
+
     }
+
+    } 
 
 
 

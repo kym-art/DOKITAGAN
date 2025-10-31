@@ -8,9 +8,10 @@ Route::prefix('auth')->group(function(){
     Route::post('login',[AuthController::class , 'login']);
 
    Route::middleware('jwt')->group(function(){ 
-    // Route::post('profile',[AuthController::class , 'profile']);
+   
+    Route::post('refresh',[AuthController::class , 'refresh']);
+     // Route::post('profile',[AuthController::class , 'profile']);
     // Route::post('logout',[AuthController::class , 'logout']);
-    // Route::post('refresh',[AuthController::class , 'refresh']);
     });
 });
 

@@ -13,7 +13,7 @@ class Authentificate
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next):JsonResponse
     {
         try{
            $user=JWTAuth::parseToken()->autenticate();
@@ -21,13 +21,15 @@ class Authentificate
            if(!$user){
             return response()->json([ 
             'success' => false,
-            'message' => 'Utilisateur non trouvé',],401);}
-        }catch(TokenExpiredException $e){
+            'message' => 'Utilisateur non trouvé',]);}
+        }catch (TokenExpiredException $e) {
+       
+        }catch(\Exception $e){
              return response()->json([
                 'success' => false,
                 'message' => 'Token expiré',
-                'error' => 'token_expired',
-            ], 401);
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return $next($request);

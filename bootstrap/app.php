@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Tymon\JWTAuth\Http\Middleware\Authenticate as JWTAuthenticate;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -41,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
         | Alias pour utiliser dans les routes : ->middleware('auth:api')
         */
         $middleware->alias([
-            'jwt' => \App\Http\Middleware\Authenticate::class,
+            'jwt' => jwtAuthenticate::class,
         
         ]);
         //

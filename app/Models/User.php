@@ -20,28 +20,35 @@ class User extends Authenticatable implements JWTSubject
    protected $fillable=['user_id','name','surname','grade','email','password'];
    protected $hidden=['password', 'remember_token',];
 
-
-
-   protected function casts(){
+   protected function casts()
+   {
       return[
          'email_verified_at'=>'datetime',
       ];
    }
 
-   public function getJWTIdentifier(){
+   public function getJWTIdentifier()
+   {
       return $this->getKey();
    }
-   public function getJWTCustomClaims(){
+   public function getJWTCustomClaims()
+   {
       return [
+         'success'=>true,
          'email'=>$this->email,
+         'grade'=>$this->grade,
          'name'=>$this->name,
+         'surname'=>$this->surname,
+         'user_id'=>$this->user_id,
+         
 
       ];
 
      
    }  
 
-   public static function newregister(array $data):self{
+   public static function newregister(array $data):self
+   {
 
       if(self:: where('email',$data['email'])->exists()){
          return null;
@@ -56,17 +63,26 @@ class User extends Authenticatable implements JWTSubject
       ]
       );
     
-
-   
    }
-   public static function newLogin(array $data): ?self   {
+   public static function newLogin(array $data): ?self  
+    {
          $user=self::where('email', $data['email'])->first();
          if(!($user && Hash::check($data['password'] , $user->password))){
             return null;
          }
          return $user;
-      }
-   public function generateAuthToken(): string{
+   }
+   public static function newProfil($user_id):?self{
+     
+          $user=User::findorfail($user_id);
+          return $user;
+      
+      
+      
+   }
+   
+   public function generateAuthToken(): string
+   {
       if(!$this->user_id){
          throw new \Exception('impossible de generer le token ; Utilisateur id not found');
       }
@@ -74,7 +90,8 @@ class User extends Authenticatable implements JWTSubject
    }
 
 
-public function generateAuthResponse():array{
+   public function generateAuthResponse():array
+   {
    $token=$this->generateAuthToken();
    return[
       'access_token'=>$token,
@@ -89,19 +106,21 @@ public function generateAuthResponse():array{
 
 
 
-}
+   }
 
-public function revokeCurrentToken(): void
+   public function revokeCurrentToken(): void
     {
+
 
     }
 
-public static function refreshAuthToken(): ?string
+   public static function refreshAuthToken(): array
     { 
       try{
        $newtoken=Auth()->refresh();
        return [
          "sucess"=>true,
+         "message"=>"token refresh successfully",
          'access_token'=>$newtoken,
          'token_type'=>'bearer',
          'expires'=>(int) auth()->factory()->getTTL()*60,   
@@ -120,15 +139,6 @@ public static function refreshAuthToken(): ?string
     }
 
     } 
-
-
-
-
-
-
-
-
-
 
 
 }

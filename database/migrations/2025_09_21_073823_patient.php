@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             // $table->unsignedBigInteger('patient_id')->unique()->primary();
             $table->id('patient_id');
-            $table->string('nom'         )->require();
-            $table->string('prenom'     );
-            $table->string('adress'      );
-            $table->string('telephone' );
-            $table->string('email'    )->unique();
-            $table->string('sex'         );
-            $table->string('nationalite');
-            $table->string('naissance');
-            $table->longtext('antecedant');
+            $table->string('nom')->require();
+            $table->string('prenom');
+            $table->string('address')->default('Lome , Togo');
+            $table->string('telephone');
+            $table->string('email')->unique();
+            $table->string('sex' )->default('undefine');
+            $table->string('nationalite')->default('Togolaise');
+            $table->string('birth_day')->default('00-00-0000');
+            $table->string('antecedant')->default('Aucun');
             $table->timestamps();
             
             //

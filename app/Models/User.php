@@ -72,8 +72,7 @@ class User extends Authenticatable implements JWTSubject
          }
          return $user;
    }
-   public static function newProfil($user_id):?self{
-     
+    public static function newProfil($user_id):?self{
           $user=User::findorfail($user_id);
           return $user;
       
